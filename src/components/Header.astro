@@ -1,0 +1,20 @@
+---
+const { document = false } = Astro.props;
+const prefix = document ? '/' : '';
+---
+<a class="skip" href="#main">跳转到主要内容</a>
+<header id="top">
+  <div class="wrap bar">
+    <a class="brand" href="/" aria-label="CatLeaf 猫页，返回首页">
+      <img src="/brand/catleaf-lockup-light.svg" width="392" height="96" alt="CatLeaf" />
+      <span>猫页</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="打开导航" aria-expanded="false" aria-controls="navigation">菜单</button>
+    <nav class="nav" id="navigation" aria-label="主导航">
+      <a href={`${prefix}#features`}>功能</a>
+      <a href="/download/" aria-current={Astro.url.pathname === '/download/' ? 'page' : undefined}>下载</a>
+      <a href="/help/" aria-current={Astro.url.pathname === '/help/' ? 'page' : undefined}>使用指南</a>
+      <a href="/feedback/" aria-current={Astro.url.pathname === '/feedback/' ? 'page' : undefined}>反馈</a>
+    </nav>
+  </div>
+</header>

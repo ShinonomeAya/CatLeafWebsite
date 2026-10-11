@@ -1,0 +1,25 @@
+---
+import { galleryShots } from '../data/screenshots';
+const first = galleryShots.find(shot => shot.id === 'search')!;
+---
+<section class="section gallery-section" id="gallery" role="region" aria-roledescription="轮播" aria-label="猫页真实界面预览">
+  <div class="wrap gallery-layout">
+    <div class="gallery-stage" aria-busy="false"><div class="phone">
+      <img id="gallery-image" src={first.src} srcset={first.srcset} sizes="(max-width:740px) 250px, 285px"
+        width={first.width} height={first.height} alt={first.alt} loading="lazy" decoding="async" />
+    </div></div>
+    <div class="gallery-copy">
+      <span class="eyebrow">看一看猫页 / INTERFACE</span>
+      <h2>界面简单，<br />阅读可以很丰富。</h2>
+      <p class="muted">查找一篇文章，选一个阅读日期，或调整主题与字号。点击选项查看真机界面；手机可左右滑动选项。</p>
+      <div class="gallery-controls" role="group" aria-label="选择客户端截图">
+        {galleryShots.map(shot => <button type="button" data-shot={shot.id} data-src={shot.src} data-srcset={shot.srcset}
+          data-width={shot.width} data-height={shot.height} data-alt={shot.alt}
+          data-caption={shot.caption} aria-pressed={shot.id === first.id ? 'true' : 'false'}>{shot.label}</button>)}
+      </div>
+      <p class="gallery-status" id="gallery-status" role="status"></p>
+      <p class="gallery-caption" id="gallery-caption" aria-live="polite">{first.caption}</p>
+      <p class="small" style="margin-top:16px">文章与配图归原内容提供者，保留原来源标识。本批素材没有 AI 翻译或日摘要结果；截图不替代发布验收。</p>
+    </div>
+  </div>
+</section>

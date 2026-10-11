@@ -1,0 +1,79 @@
+name: Verify and sync CatLeaf release
+on:
+  schedule:
+    - cron: '17,47 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: catleaf-production-release
+  cancel-in-progress: false
+jobs:
+  sync:
+    if: vars.RELEASE_SYNC_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    environment: release-sync
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22.23.2'
+          cache: npm
+      - run: npm ci
+      - name: Verify published APK and update data
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          export ANDROID_BUILD_TOOLS="$ANDROID_HOME/build-tools/36.0.0"
+          test -f "$ANDROID_BUILD_TOOLS/lib/apksigner.jar"
+          npm run sync:release -- --apply
+      - name: Detect a new release
+        id: change
+        run: |
+          if git diff --quiet -- src/data/release.json src/data/downloads.json; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Checks and build
+        if: steps.change.outputs.changed == 'true'
+        run: |
+          npm run check:release
+          npm run test:release
+          npm run build
+      - name: Deploy preview and verify actual download
+        if: steps.change.outputs.changed == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          npx wrangler pages deploy dist --project-name=catleaf-website --branch=release-check --commit-dirty=true 2>&1 | tee .release-work/preview.log
+          PREVIEW_URL=$(node -e "const fs=require('fs');const urls=fs.readFileSync('.release-work/preview.log','utf8').match(/https:\/\/[a-f0-9]{8}\.catleaf-website\.pages\.dev/g);if(!urls)process.exit(1);process.stdout.write(urls.at(-1));")
+          npm run verify:download -- "$PREVIEW_URL"
+      - name: Promote verified build to existing website
+        if: steps.change.outputs.changed == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          npx wrangler pages deploy dist --project-name=catleaf-website --branch=main --commit-dirty=true
+          npm run verify:download -- https://catleaf.konoyuming.top
+      - name: Persist only verified release data
+        if: steps.change.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/data/release.json src/data/downloads.json
+          git commit -m 'chore: synchronize verified CatLeaf release'
+          git push origin HEAD:main

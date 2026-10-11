@@ -1,0 +1,32 @@
+---
+import { release } from '../data/release';
+const published = release.status === 'published' ? release : undefined;
+const status = release.status === 'published' ? 'Android 测试版' : release.status === 'paused' ? '下载暂时停止' : '测试候选 · 尚未公开发布';
+---
+<section class="section" id="download">
+  <div class="wrap download">
+    <div>
+      <span class="eyebrow">下一页，留给阅读 / DOWNLOAD</span><span class="status">{status}</span>
+      <h2>{published ? '猫页，准备好与你见面。' : '猫页，还在认真准备。'}</h2>
+      <p>{published ? '下载前可核对版本与校验值，安装与更新请查看下方说明。' : '下方信息来自已核对的本地测试候选。公开下载地址与发布授权尚未齐备，目前未开放下载；不代表正式稳定版或全部验收通过。'}</p>
+      {published ? <a class="btn" href={published.url}>下载 Android 测试版</a> : <button class="btn" type="button" disabled aria-describedby="download-reason">APK 尚未开放下载</button>}
+      {published?.githubUrl && published.githubUrl !== published.url && <p class="small"><a class="text-link" href={published.githubUrl}>GitHub 备用下载 ↗</a></p>}
+      {!published && <p id="download-reason" class="small">{release.status === 'paused' ? release.reason : '下载托管待确认，公开发布尚未授权。'}</p>}
+      <a class="text-link" href="/help/#install">先了解安装与更新 ↗</a>
+      <p class="candidate">使用同签名安装包覆盖升级，不要卸载或清除数据。</p>
+    </div>
+    <div>
+      <dl>
+        <dt>{published ? '测试版本' : '候选版本'}</dt><dd>{release.version}（code{release.versionCode}）</dd>
+        <dt>包名</dt><dd>{release.packageId}</dd>
+        <dt>支持系统</dt><dd>{release.android}；兼容验收仍在继续</dd>
+        <dt>发布日期</dt><dd>{release.date ?? '尚未公开发布，日期未定'}</dd>
+        <dt>文件大小</dt><dd>{(release.bytes / 1_000_000).toFixed(2)} MB（{(release.bytes / 1048576).toFixed(2)} MiB；{release.bytes.toLocaleString('zh-CN')} bytes）</dd>
+        <dt>APK SHA-256</dt><dd class="checksum">{release.sha256}</dd>
+        <dt>证书 SHA-256</dt><dd class="checksum">{release.certificateSha256}</dd>
+        <dt>更新说明</dt><dd><a href="/changelog/">查看更新记录与已知限制</a></dd>
+      </dl>
+      <p class="candidate">{published ? '公开测试版，完整发布验收仍在继续。网站截图拍摄于0.1.18/code19，保留真实来源版本。' : '客户端仍在验收中，尚未完成正式发布验收。网站截图拍摄于0.1.18/code19，保留真实来源版本。'}</p>
+    </div>
+  </div>
+</section>

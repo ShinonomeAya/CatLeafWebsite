@@ -1,0 +1,9 @@
+---
+import { screenshots, type ScreenshotId } from '../data/screenshots';
+interface Props { name: ScreenshotId; eager?: boolean }
+const { name, eager = false } = Astro.props;
+const shot = screenshots.find(item => item.id === name)!;
+---
+<img src={shot.src} srcset={shot.srcset} sizes="(max-width:740px) 235px, 270px"
+  width={shot.width} height={shot.height} alt={shot.alt} loading={eager ? 'eager' : 'lazy'}
+  fetchpriority={eager ? 'high' : undefined} decoding="async" />
