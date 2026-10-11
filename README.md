@@ -8,6 +8,8 @@
 
 Astro 静态页面、TypeScript、原生 CSS/JavaScript。仅 APK 下载路径使用 Pages Function 流式中转 GitHub 原包；不提供在线阅读、AI 服务或用户系统。公开测试版不代表 App 完整发布验收通过。
 
+2026-10-11：免费中转已上线；自动同步已配置并启用，约每30分钟检查公开Release与发布清单，先核验APK再验证预览、发布生产。首次完整成功记录：[38136113243](https://github.com/ShinonomeAya/CatLeafWebsite/actions/runs/38136113243)。国内各运营商无代理环境仍待实测；App code24仍读取GitHub清单，官网部署不会修改既有APK内的端点。
+
 ## 本地运行
 
 Node.js >=22.12.0（CI 为22.23.2）。
