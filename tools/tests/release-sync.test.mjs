@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { prepareRelease, verifyBytes, certificate } from '../release-sync.mjs';
+import { prepareRelease, verifyBytes, certificate, waitForDownload } from '../release-sync.mjs';
 import { handleDownload } from '../download-worker.mjs';
 const bytes = Buffer.from('fixture-apk');
 const sha256 = createHash('sha256').update(bytes).digest('hex');
@@ -62,4 +62,16 @@ test('错误范围、上游错误/忽略续传/大小错误/网络失败不可�
   }
   assert.equal((await handleDownload(req(path, { headers: { Range: 'bytes=0-1' } }), {}, downloads,
     async () => new Response(bytes, { headers: { 'Content-Length': String(bytes.length) } }))).status, 502);
+});
+test('预览就绪等待有上限，错误类型/长度不可通过', async () => {
+  let calls = 0, pauses = 0;
+  const ready = () => new Response(null, { headers: { 'Content-Type': 'application/vnd.android.package-archive', 'Content-Length': String(bytes.length) } });
+  await waitForDownload('https://fixture.pages.dev/downloads/a.apk', { bytes: bytes.length }, async () => ++calls < 3 ? new Response(null, { status: 404 }) : ready(), async () => pauses++);
+  assert.equal(calls, 3); assert.equal(pauses, 2);
+  calls = 0;
+  await assert.rejects(waitForDownload('https://fixture.pages.dev/downloads/a.apk', { bytes: bytes.length }, async () => { calls++; return new Response(null, { headers: { 'Content-Length': '1' } }); }, async () => {}));
+  assert.equal(calls, 6);
+  calls = 0;
+  await assert.rejects(waitForDownload('https://fixture.pages.dev/downloads/a.apk', { bytes: bytes.length }, async () => { calls++; return new Response(null, { status: 403 }); }, async () => {}));
+  assert.equal(calls, 1);
 });

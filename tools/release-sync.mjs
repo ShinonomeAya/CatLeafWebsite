@@ -34,6 +34,18 @@ export function verifyBytes(bytes, release) {
     throw new Error('下载文件大小或 SHA-256 不符');
   }
 }
+export async function waitForDownload(url, release, fetcher = fetch, pause = ms => new Promise(resolve => setTimeout(resolve, ms))) {
+  let status;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const response = await fetcher(url, { method: 'HEAD', signal: AbortSignal.timeout(15000), cache: 'no-store' });
+    status = response.status;
+    if (status === 200 && response.headers.get('Content-Type')?.includes('android.package-archive')
+      && Number(response.headers.get('Content-Length')) === release.bytes) return;
+    if (![200, 404, 429, 502, 503].includes(status)) break;
+    if (attempt < 5) await pause(5000);
+  }
+  throw new Error(`部署下载路径未就绪：HTTP ${status}，未启用未核验下载`);
+}
 async function getJson(url, headers = {}) {
   const response = await fetch(url, { headers, signal: AbortSignal.timeout(60000) });
   if (!response.ok) throw new Error(`元数据请求失败 ${response.status}`);
