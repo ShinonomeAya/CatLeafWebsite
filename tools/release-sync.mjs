@@ -9,7 +9,8 @@ export const certificate = '5f782c4afaf517286d0f5f2a2bd6d8d9f9e2ef9d1cc27b5d4084
 export function prepareRelease(source, github, current) {
   const version = source.version;
   if (!/^\d+\.\d+\.\d+$/.test(version) || github.tag_name !== `v${version}` || github.draft
-    || !github.published_at || source.published !== true || source.minSdk !== 29 || source.minAndroid !== '10'
+    || !github.published_at || source.published !== true || source.minSdk !== 29
+    || source.minAndroid !== undefined && source.minAndroid !== '10'
     || source.artifact?.certificateSha256 !== certificate) throw new Error('发布状态、系统或签名信任锚不符');
   const name = `catleaf-${version}-code${source.versionCode}.apk`;
   const url = `https://github.com/ShinonomeAya/CatLeaf/releases/download/v${version}/${name}`;

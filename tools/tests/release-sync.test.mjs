@@ -12,7 +12,10 @@ const github = { tag_name: 'v0.1.23', draft: false, published_at: '2026-10-11T08
 const current = { version: '0.1.22', versionCode: 23, bytes: 1, sha256: 'a'.repeat(64) };
 test('发布校验、倒退及同 code 换包阻断', () => {
   const next = prepareRelease(source, github, current); verifyBytes(bytes, next);
+  const { minAndroid, ...sdkOnly } = source;
+  assert.deepEqual(prepareRelease(sdkOnly, github, current), next);
   for (const invalid of [{ ...source, published: false }, { ...source, packageId: 'other.app' }, { ...source, minSdk: 28 },
+    { ...sdkOnly, minSdk: undefined }, { ...sdkOnly, minSdk: '29' }, { ...source, minAndroid: '11' }, { ...source, minAndroid: null },
     { ...source, downloadUrl: 'https://other.invalid/a.apk' }, { ...source, artifact: { ...source.artifact, certificateSha256: 'b'.repeat(64) } }]) {
     assert.throws(() => prepareRelease(invalid, github, current));
   }
