@@ -1,14 +1,14 @@
 {
   "status": "published",
   "packageId": "dev.local.catleaf.nativeapp",
-  "version": "0.1.24",
-  "versionCode": 25,
+  "version": "0.1.28",
+  "versionCode": 29,
   "android": "Android 10 及以上",
-  "bytes": 28641842,
-  "sha256": "0b79af94227a7387440f614e00fa6182e95d03d63947a6057adac2f63ae72b8e",
+  "bytes": 28804534,
+  "sha256": "22837bfe00570e42539e91820eff2f2d700edc0a405ae5c6854fc5d9ed64dbf6",
   "certificateSha256": "5f782c4afaf517286d0f5f2a2bd6d8d9f9e2ef9d1cc27b5d4084c65ad64d3f73",
-  "date": "2026-10-13",
-  "githubUrl": "https://github.com/ShinonomeAya/CatLeaf/releases/download/v0.1.24/catleaf-0.1.24-code25.apk",
-  "url": "https://catleaf.konoyuming.top/downloads/catleaf-0.1.24-code25.apk",
-  "releaseNotes": "统一三根页内容边距与列表标题，补齐共享说明字号，调整底栏高度并适配系统大字。"
+  "date": "2026-10-14",
+  "githubUrl": "https://github.com/ShinonomeAya/CatLeaf/releases/download/v0.1.28/catleaf-0.1.28-code29.apk",
+  "url": "https://catleaf.konoyuming.top/downloads/catleaf-0.1.28-code29.apk",
+  "releaseNotes": "公开测试版：新增AI解读与可折叠原文依据，支持选文解释、问本文；完善OPML分批导入和逐项重试。可同签名覆盖升级，保留数据。"
 }

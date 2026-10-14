@@ -8,5 +8,10 @@
     "url": "https://github.com/ShinonomeAya/CatLeaf/releases/download/v0.1.24/catleaf-0.1.24-code25.apk",
     "bytes": 28641842,
     "sha256": "0b79af94227a7387440f614e00fa6182e95d03d63947a6057adac2f63ae72b8e"
+  },
+  "/downloads/catleaf-0.1.28-code29.apk": {
+    "url": "https://github.com/ShinonomeAya/CatLeaf/releases/download/v0.1.28/catleaf-0.1.28-code29.apk",
+    "bytes": 28804534,
+    "sha256": "22837bfe00570e42539e91820eff2f2d700edc0a405ae5c6854fc5d9ed64dbf6"
   }
 }
