@@ -10,6 +10,26 @@ const source = { version: '0.1.23', versionCode: 24, packageId: 'dev.local.catle
   published: true, downloadUrl: url, releaseNotes: '测试', artifact: { fileName: 'catleaf-0.1.23-code24.apk', bytes: bytes.length, sha256, certificateSha256: certificate } };
 const github = { tag_name: 'v0.1.23', draft: false, published_at: '2026-10-11T08:30:14Z', assets: [ { name: source.artifact.fileName, size: bytes.length, digest: `sha256:${sha256}`, browser_download_url: url } ] };
 const current = { version: '0.1.22', versionCode: 23, bytes: 1, sha256: 'a'.repeat(64) };
+test('新版发布结构与更新指针一致，保持资产和信任锚校验', () => {
+  const published = { ...github, prerelease: true };
+  const manifest = { packageId: source.packageId, published: true, version: source.version,
+    versionCode: source.versionCode, downloadUrl: url, releaseNotes: source.releaseNotes };
+  const renamed = { versionName: source.version, versionCode: source.versionCode, packageName: source.packageId,
+    minSdk: 29, status: 'published-pre-release', apk: { ...source.artifact, url, path: 'private-local-path' },
+    publication: { tag: published.tag_name, publishedAt: published.published_at, prerelease: true } };
+  assert.deepEqual(prepareRelease(renamed, published, current, manifest), prepareRelease(source, published, current));
+  for (const patch of [{ published: false }, { version: '0.1.28' }, { versionCode: 29 },
+    { packageId: 'other.app' }, { downloadUrl: 'https://other.invalid/a.apk' }]) {
+    assert.throws(() => prepareRelease(renamed, published, current, { ...manifest, ...patch }));
+  }
+  assert.throws(() => prepareRelease(renamed, published, current));
+  for (const invalid of [{ ...renamed, status: 'candidate' }, { ...renamed, minSdk: 28 },
+    { ...renamed, apk: { ...renamed.apk, certificateSha256: 'b'.repeat(64) } },
+    { ...renamed, apk: { ...renamed.apk, sha256: 'b'.repeat(64) } },
+    { ...renamed, publication: { ...renamed.publication, tag: 'v0.1.28' } }]) {
+    assert.throws(() => prepareRelease(invalid, published, current, manifest));
+  }
+});
 test('发布校验、倒退及同 code 换包阻断', () => {
   const next = prepareRelease(source, github, current); verifyBytes(bytes, next);
   const { minAndroid, ...sdkOnly } = source;

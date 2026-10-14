@@ -6,7 +6,20 @@ import { fileURLToPath } from 'node:url';
 import { validateRelease, serializeUpdateManifest } from '../src/data/release.ts';
 
 export const certificate = '5f782c4afaf517286d0f5f2a2bd6d8d9f9e2ef9d1cc27b5d4084c65ad64d3f73';
-export function prepareRelease(source, github, current) {
+export function prepareRelease(source, github, current, manifest) {
+  if (source.version === undefined && source.versionName !== undefined) {
+    if (source.status !== 'published-pre-release' || github.prerelease !== true
+      || source.publication?.tag !== github.tag_name || source.publication?.publishedAt !== github.published_at
+      || source.publication?.prerelease !== true || manifest?.published !== true
+      || manifest.version !== source.versionName || manifest.versionCode !== source.versionCode
+      || manifest.packageId !== source.packageName || manifest.downloadUrl !== source.apk?.url) {
+      throw new Error('新版发布清单与公开 Release、更新指针不一致');
+    }
+    source = { version: source.versionName, versionCode: source.versionCode, packageId: source.packageName,
+      published: true, minSdk: source.minSdk, downloadUrl: source.apk?.url, releaseNotes: manifest.releaseNotes,
+      artifact: { fileName: `catleaf-${source.versionName}-code${source.versionCode}.apk`,
+        bytes: source.apk?.bytes, sha256: source.apk?.sha256, certificateSha256: source.apk?.certificateSha256 } };
+  }
   const version = source.version;
   if (!/^\d+\.\d+\.\d+$/.test(version) || github.tag_name !== `v${version}` || github.draft
     || !github.published_at || source.published !== true || source.minSdk !== 29
@@ -76,7 +89,9 @@ async function sync() {
   const commit = await getJson('https://api.github.com/repos/ShinonomeAya/CatLeaf/commits/main', headers);
   if (!/^[a-f0-9]{40}$/.test(commit.sha)) throw new Error('源码提交 SHA 无效');
   const source = await getJson(`https://raw.githubusercontent.com/ShinonomeAya/CatLeaf/${commit.sha}/docs/releases/${version}/release.json`);
-  const next = prepareRelease(source, github, current);
+  const manifest = source.versionName === undefined ? undefined
+    : await getJson(`https://raw.githubusercontent.com/ShinonomeAya/CatLeaf/${commit.sha}/docs/releases/latest.json`);
+  const next = prepareRelease(source, github, current, manifest);
   if (process.argv.includes('--apply') && !process.argv.includes('--verify') && JSON.stringify(next) === JSON.stringify(current)) {
     console.log('发布元数据没有变化，不重复下载或部署。'); return;
   }
