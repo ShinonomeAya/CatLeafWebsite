@@ -87,6 +87,11 @@ test('错误范围、上游错误/忽略续传/大小错误/网络失败不可�
     async () => new Response(bytes, { headers: { 'Content-Length': String(bytes.length) } }))).status, 502);
 });
 test('预览就绪等待有上限，错误类型/长度不可通过', async () => {
+  const actual = await waitForDownload('https://fixture.pages.dev/downloads/a.apk', { bytes: bytes.length }, async (url, options) => {
+    assert.equal(options.method, 'GET');
+    return new Response(bytes, { headers: { 'Content-Type': 'application/vnd.android.package-archive', 'Content-Length': String(bytes.length) } });
+  });
+  assert(Buffer.from(await actual.arrayBuffer()).equals(bytes));
   let calls = 0, pauses = 0;
   const ready = () => new Response(null, { headers: { 'Content-Type': 'application/vnd.android.package-archive', 'Content-Length': String(bytes.length) } });
   await waitForDownload('https://fixture.pages.dev/downloads/a.apk', { bytes: bytes.length }, async () => ++calls < 3 ? new Response(null, { status: 404 }) : ready(), async () => pauses++);

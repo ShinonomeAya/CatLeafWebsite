@@ -51,10 +51,11 @@ export function verifyBytes(bytes, release) {
 export async function waitForDownload(url, release, fetcher = fetch, pause = ms => new Promise(resolve => setTimeout(resolve, ms))) {
   let status;
   for (let attempt = 0; attempt < 6; attempt++) {
-    const response = await fetcher(url, { method: 'HEAD', signal: AbortSignal.timeout(15000), cache: 'no-store' });
+    const response = await fetcher(url, { method: 'GET', signal: AbortSignal.timeout(180000), cache: 'no-store' });
     status = response.status;
     if (status === 200 && response.headers.get('Content-Type')?.includes('android.package-archive')
-      && Number(response.headers.get('Content-Length')) === release.bytes) return;
+      && Number(response.headers.get('Content-Length')) === release.bytes) return response;
+    await response.body?.cancel();
     if (![200, 404, 429, 502, 503].includes(status)) break;
     if (attempt < 5) await pause(5000);
   }
