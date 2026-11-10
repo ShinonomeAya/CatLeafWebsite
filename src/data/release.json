@@ -1,14 +1,14 @@
 {
   "status": "published",
   "packageId": "dev.local.catleaf.nativeapp",
-  "version": "0.1.28",
-  "versionCode": 29,
+  "version": "0.1.29",
+  "versionCode": 30,
   "android": "Android 10 及以上",
-  "bytes": 28804534,
-  "sha256": "22837bfe00570e42539e91820eff2f2d700edc0a405ae5c6854fc5d9ed64dbf6",
+  "bytes": 28920154,
+  "sha256": "92ac5ba2dd9f0bed74530f7d7cbbf3343b348984c88643c69cd97ebb9fe6f304",
   "certificateSha256": "5f782c4afaf517286d0f5f2a2bd6d8d9f9e2ef9d1cc27b5d4084c65ad64d3f73",
-  "date": "2026-10-14",
-  "githubUrl": "https://github.com/ShinonomeAya/CatLeaf/releases/download/v0.1.28/catleaf-0.1.28-code29.apk",
-  "url": "https://catleaf.konoyuming.top/downloads/catleaf-0.1.28-code29.apk",
-  "releaseNotes": "公开测试版：新增AI解读与可折叠原文依据，支持选文解释、问本文；完善OPML分批导入和逐项重试。可同签名覆盖升级，保留数据。"
+  "date": "2026-11-10",
+  "githubUrl": "https://github.com/ShinonomeAya/CatLeaf/releases/download/v0.1.29/catleaf-0.1.29-code30.apk",
+  "url": "https://catleaf.konoyuming.top/downloads/catleaf-0.1.29-code30.apk",
+  "releaseNotes": "公开测试版。新增正文点击翻页、本机 RSS 全文规则与静态网页订阅。状态备份 v3 可保留网页源和规则。支持同签名覆盖升级。"
 }
